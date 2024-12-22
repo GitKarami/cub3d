@@ -1,0 +1,164 @@
+## Components and Their Responsibilities
+
+### 1. **Header Files (`include/cub3d.h`)**
+
+- **Purpose**: Centralize all necessary includes, macro definitions, data structures, and function prototypes used across the project.
+- **Contents**:
+  - Standard libraries (`stdlib.h`, `stdio.h`, `math.h`, etc.).
+  - MiniLibX library (`mlx.h`).
+  - Macro definitions for window dimensions, movement speeds, map characters, and identifiers.
+  - Data structure definitions (`t_player`, `t_texture`, `t_color`, `t_map`, `t_game`).
+  - Function prototypes for initialization, parsing, rendering, input handling, texture loading, and utilities.
+
+### 2. **Main Module (`src/main.c`)**
+
+- **Purpose**: Entry point of the program. Handles initial setup and starts the game loop.
+- **Key Functions**:
+  - `main(int argc, char **argv)`: Validates command-line arguments, initializes the game, enters the game loop, and performs cleanup upon exit.
+
+### 3. **Initialization Module (`src/init.c`)**
+
+- **Purpose**: Sets up the initial game state, including MLX setup, window creation, map parsing, texture loading, and player placement.
+- **Key Functions**:
+  - `initialize_game(t_game *game, const char *map_file)`: Initializes MLX, creates the window, parses the map file, loads textures, and locates the player.
+
+### 4. **Parser Module (`src/parser.c`)**
+
+- **Purpose**: Reads and interprets the `.cub` configuration file, extracting texture paths, color settings, and the map layout.
+- **Key Functions**:
+  - `is_config_line(const char *line)`: Determines if a line is part of the configuration settings.
+  - `parse_map(t_game *game, const char *filepath)`: Opens and reads the map file, separates configuration lines from map layout, and populates the `t_game` structure.
+  - `validate_map(t_game *game)`: Ensures the map is properly formatted, enclosed by walls, and contains exactly one player start position.
+  - `locate_player(t_game *game)`: Identifies the player's starting position and orientation within the map.
+
+### 5. **Rendering Module (`src/render.c`)**
+
+- **Purpose**: Handles all rendering tasks, including drawing the 2D map grid and performing raycasting for 3D visualization.
+- **Key Functions**:
+  - `render_frame(t_game *game)`: Clears the current frame and renders the updated scene based on the player's position and orientation.
+  - `render_map(t_game *game)`: (Optional) Renders a top-down 2D map for debugging purposes.
+  - `perform_raycasting(t_game *game)`: Implements the raycasting algorithm to calculate wall distances and render textured walls.
+
+### 6. **Input Handling Module (`src/input.c`)**
+
+- **Purpose**: Processes user input for navigating the maze, including movement and rotation.
+- **Key Functions**:
+  - `handle_keypress(int key, t_game *game)`: Responds to keypress events (e.g., `W`, `A`, `S`, `D`, arrow keys) to move or rotate the player.
+  - `handle_keyrelease(int key, t_game *game)`: (Optional) Handles key release events if implementing smooth movement.
+  - `setup_hooks(t_game *game)`: Registers input and window event hooks with MLX.
+
+### 7. **Texture Handling Module (`src/texture.c`)**
+
+- **Purpose**: Loads and manages wall textures used in rendering.
+- **Key Functions**:
+  - `load_textures(t_game *game)`: Loads texture images using MiniLibX functions (`mlx_xpm_file_to_image`) and stores them in the `t_game` structure.
+  - `get_texture_pixel(t_texture *texture, int x, int y)`: Retrieves the color of a specific pixel from a texture for mapping onto walls.
+
+### 8. **Raycasting Module (`src/raycasting.c`)**
+
+- **Purpose**: Implements the raycasting algorithm to calculate visible walls and render them with appropriate scaling and textures.
+- **Key Functions**:
+  - `cast_single_ray(t_game *game, int column)`: Casts a single ray corresponding to a vertical column on the screen, calculates intersection with walls, and determines texture mapping.
+  - `calculate_perpendicular_distance(t_game *game, double ray_dir_x, double ray_dir_y)`: Computes the distance from the player to the wall hit by the ray, correcting for the fish-eye effect.
+  - `draw_wall_slice(t_game *game, int column, t_raycast *ray)`: Draws the vertical slice of the wall with the correct texture and height based on raycasting results.
+
+### 9. **Utility Module (`src/utils.c`)**
+
+- **Purpose**: Provides helper functions for error handling, memory management, and other miscellaneous tasks.
+- **Key Functions**:
+  - `error_exit(const char *message)`: Prints an error message and exits the program.
+  - `cleanup_game(t_game *game)`: Frees allocated resources, destroys MLX instances, and performs necessary cleanup before exiting.
+  - `ft_strends_with(const char *str, const char *suffix)`: Checks if a string ends with a specific suffix (e.g., `.cub`).
+
+### 10. **Libft (`libft/`)**
+
+- **Purpose**: Custom library of standard C functions (e.g., `ft_strlen`, `ft_strcmp`) used throughout the cub3D project.
+- **Integration**:
+  - Compiled separately and linked during the build process via the `Makefile`.
+
+### 11. **Makefile**
+
+- **Purpose**: Automates the compilation process, managing dependencies, linking, and providing convenient targets for building, cleaning, and re-building the project.
+- **Key Targets**:
+  - `all`: Compiles the project.
+  - `clean`: Removes object files.
+  - `fclean`: Cleans all build artifacts, including the executable.
+  - `re`: Performs `fclean` followed by `all`.
+  - `bonus`: (If implementing bonus features).
+
+## Detailed Component Interactions
+
+### Initialization Flow
+
+1. **Program Start (`main.c`)**
+   - The `main` function checks the number of command-line arguments to ensure a `.cub` file is provided.
+   - Calls `initialize_game(&game, argv[1])` to set up the game state.
+
+2. **Game Initialization (`init.c`)**
+   - **MLX Setup**: Initializes the MLX instance and creates a window with defined dimensions.
+   - **Map Parsing**: Invokes `parse_map(&game, map_file)` to read the configuration file.
+   - **Texture Loading**: Calls `load_textures(&game)` to load all wall textures.
+   - **Player Placement**: Executes `locate_player(&game)` to determine the player's starting position and orientation based on the map.
+
+3. **Map Parsing (`parser.c`)**
+   - **File Reading**: Opens the `.cub` file and reads it line by line.
+   - **Configuration Extraction**: Uses `is_config_line(line)` to identify and parse texture paths (`NO`, `SO`, `WE`, `EA`) and color settings (`F`, `C`).
+   - **Map Extraction**: After configuration lines, reads the map layout into a 2D array (`t_map.grid`).
+   - **Validation**: Ensures the map is enclosed by walls, has valid characters, and contains a single player start position.
+
+### Game Loop and Rendering
+
+1. **Entering the Game Loop (`main.c` and `init.c`)**
+   - After initialization, `game_loop(&game)` starts the MLX loop, which continuously calls `render_frame(&game)` to update the display.
+
+2. **Rendering Frames (`render.c`)**
+   - **Frame Clearing**: Clears the previous frame to prepare for drawing the new one.
+   - **Raycasting**:
+     - For each vertical column on the screen, `cast_single_ray(&game, column)` is called.
+     - Calculates the direction of the ray based on the player's orientation and camera plane.
+     - Uses the DDA (Digital Differential Analyzer) algorithm to detect wall intersections.
+     - Determines the distance to the wall and corrects for the fish-eye effect.
+     - Calculates the height of the wall slice based on the distance.
+     - Determines the appropriate texture and texture coordinate for the wall slice.
+     - Calls `draw_wall_slice(&game, column, &ray)` to render the textured wall slice.
+   - **Rendering Completion**: After all columns are processed, the frame is updated on the window using `mlx_put_image_to_window`.
+
+3. **Handling User Input (`input.c`)**
+   - **Key Presses**:
+     - Registers hooks for keypress events (e.g., `W`, `A`, `S`, `D` for movement; arrow keys for rotation; `ESC` for exit).
+     - Updates the player's position and direction based on input.
+     - Ensures collision detection by checking the map grid before moving the player.
+   - **Window Events**:
+     - Handles window close events (e.g., clicking the red cross) to trigger `cleanup_game(&game)`.
+
+### Texture Management (`texture.c`)
+
+- **Loading Textures**:
+  - Uses `mlx_xpm_file_to_image` to load `.xpm` texture files for each wall direction (North, South, West, East).
+  - Retrieves image data pointers and stores them in the `t_texture` structures within `t_game`.
+- **Applying Textures**:
+  - During raycasting, determines which texture corresponds to the wall hit by the ray.
+  - Maps the correct portion of the texture to the wall slice based on the texture coordinate.
+
+### Utility Functions (`utils.c`)
+
+- **Error Handling**:
+  - Centralizes error reporting and program termination through `error_exit`.
+- **Memory Management**:
+  - Ensures all dynamically allocated memory (e.g., map grid, textures) is properly freed in `cleanup_game`.
+- **String Utilities**:
+  - Provides helper functions like `ft_strends_with` to validate file extensions.
+
+## Data Structures
+
+### `t_player`
+
+```c
+typedef struct s_player {
+    double posX;   // Player's X position
+    double posY;   // Player's Y position
+    double dirX;   // Player's direction vector X
+    double dirY;   // Player's direction vector Y
+    double planeX; // Camera plane X
+    double planeY; // Camera plane Y
+}               t_player;
