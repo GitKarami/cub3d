@@ -6,7 +6,7 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 13:23:00 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/22 15:17:22 by kchahmi       ########   odam.nl         */
+/*   Updated: 2024/12/24 00:07:19 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../minilibx/mlx.h"
-#include "../utils/libft/libft.h"
+#include "../lib/minilibx/mlx.h"
+#include "../lib/libft/libft.h"
 
 // Define window dimensions
 #define WIN_WIDTH 800 // Width of the game window
@@ -141,12 +141,12 @@ int     game_loop(t_game *game);
 // Map parsing functions
 int     parse_map(t_game *game, const char *filepath);
 int     validate_map(t_game *game);
-int     locate_player(t_game *game);
-int     parse_map_grid(t_game *game, int fd);
+void    locate_player(t_game *game);
+int     parse_map_grid(t_game *game, char **map_lines, int line_count);
 int     parse_config(t_game *game, char *line);
 
 // Texture loading functions
-int     load_textures(t_game *game);
+void    load_textures(t_game *game);
 
 // Color parsing functions
 int     parse_colors(t_game *game, char **split);

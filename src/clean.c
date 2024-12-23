@@ -6,26 +6,52 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 15:14:34 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/22 15:16:56 by kchahmi       ########   odam.nl         */
+/*   Updated: 2024/12/23 22:41:46 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-int	cleanup_game(t_game *game)
+
+void  error_exit(const char *message)
 {
-	// Free the map grid
-	for (int i = 0; i < game->map.height; i++)
-		free(game->map.grid[i]);
-	free(game->map.grid);
+	printf("Error\n%s\n", message);
+	exit(1);
+}
+int cleanup_game(t_game *game) {
+    // Free texture paths
+    for (int i = 0; i < 4; i++) {
+        if (game->textures[i].path)
+            free(game->textures[i].path);
+        if (game->textures[i].img)
+            mlx_destroy_image(game->mlx, game->textures[i].img);
+    }
 
-	// Free the textures
-	for (int i = 0; i < 4; i++)
-		free(game->textures[i].path);
+    // Free image
+    if (game->img.img)
+        mlx_destroy_image(game->mlx, game->img.img);
+    
+    // Free map grid
+    if (game->map.grid) {
+        for (int y = 0; y < game->map.height; y++) {
+            if (game->map.grid[y])
+                free(game->map.grid[y]);
+        }
+        free(game->map.grid);
+    }
 
-	// Destroy the window and MLX instance
-	mlx_destroy_window(game->mlx, game->window);
-	mlx_destroy_display(game->mlx);
-	free(game->mlx);
-	return (0);
+    // Destroy window
+    if (game->window)
+        mlx_destroy_window(game->mlx, game->window);
+    
+    // Destroy MLX instance
+    if (game->mlx) {
+        mlx_destroy_display(game->mlx);
+        free(game->mlx);
+    }
+    
+    // Free the game structure itself
+    free(game);
+    
+    return 0;
 }
