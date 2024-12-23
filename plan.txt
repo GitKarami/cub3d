@@ -1,6 +1,6 @@
 ## Components and Their Responsibilities
 
-### 1. **Header Files (`include/cub3d.h`)**
+### 1. **Header Files (`include/cub3d.h`)**  
 
 - **Purpose**: Centralize all necessary includes, macro definitions, data structures, and function prototypes used across the project.
 - **Contents**:
