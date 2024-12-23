@@ -6,7 +6,7 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 13:50:08 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/23 23:45:39 by krim          ########   odam.nl         */
+/*   Updated: 2024/12/24 00:45:38 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,9 @@ int ft_strends_with(const char *str, const char *suffix)
 
 int	game_loop(t_game *game)
 {
-	// render_frame(game);
+    init_mlx_image(game);
+	render_frame(game);
+    print_game_struct(game);
 	setup_hooks(game);
 	mlx_loop(game->mlx);
 	return (0);
@@ -105,7 +107,6 @@ int main(int argc, char **argv)
     }
 
     initialize_game(&game, argv[1]);
-    print_game_struct(&game);
     game_loop(&game);
     // cleanup_game(&game);
     return 0;

@@ -6,7 +6,7 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 14:21:32 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/22 14:47:51 by kchahmi       ########   odam.nl         */
+/*   Updated: 2024/12/24 00:40:08 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,18 @@
 
 void	draw_vertical_line(t_game *game, int x, int start, int end, int color)
 {
-    int	y;
+    int y;
 
     y = start;
     while (y < end)
     {
-        // Calculate the memory address for the pixel
-        char *pixel = game->img.addr + (y * game->img.line_length + x * (game->img.bits_per_pixel / 8));
-        *(unsigned int*)pixel = color;
+        // Ensure y is within the window bounds
+        if (y >= 0 && y < WIN_HEIGHT)
+        {
+            // Calculate the memory address for the pixel
+            char *pixel = game->img.addr + (y * game->img.line_length + x * (game->img.bits_per_pixel / 8));
+            *(unsigned int*)pixel = color;
+        }
         y++;
     }
 }

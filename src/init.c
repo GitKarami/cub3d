@@ -6,11 +6,22 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 13:54:16 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/24 00:30:38 by krim          ########   odam.nl         */
+/*   Updated: 2024/12/24 00:41:26 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
+
+void	init_mlx_image(t_game *game)
+{
+    game->img.img = mlx_new_image(game->mlx, WIN_WIDTH, WIN_HEIGHT);
+    if (!game->img.img)
+        error_exit("Failed to create image");
+    
+    game->img.addr = mlx_get_data_addr(game->img.img, &game->img.bits_per_pixel, &game->img.line_length, &game->img.endian);
+    if (!game->img.addr)
+        error_exit("Failed to get image data address");
+}
 
 void    init_player(t_player *player) {
     player->posX = 0;

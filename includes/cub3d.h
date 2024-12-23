@@ -6,7 +6,7 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 13:23:00 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/24 00:07:19 by krim          ########   odam.nl         */
+/*   Updated: 2024/12/24 00:41:31 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,7 @@ typedef struct s_game {
 
 // Initialization functions
 int     initialize_game(t_game *game, const char *map_file);
+void	init_mlx_image(t_game *game);
 
 // Rendering functions
 void    render_frame(t_game *game);
