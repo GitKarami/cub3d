@@ -6,7 +6,7 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 14:21:32 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/24 00:40:08 by krim          ########   odam.nl         */
+/*   Updated: 2024/12/24 02:03:14 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,51 @@
 
 void	draw_vertical_line(t_game *game, int x, int start, int end, int color)
 {
-    int y;
+    int	y;
 
     y = start;
     while (y < end)
+    {
+        // Calculate the memory address for the pixel
+        char *pixel = game->img.addr + (y * game->img.line_length + x * (game->img.bits_per_pixel / 8));
+        *(unsigned int*)pixel = color;
+        y++;
+    }
+}
+
+void	render_ceiling(t_game *game, int x, int drawStart)
+{
+    int y;
+    unsigned int ceiling_color = (game->ceiling_color.r << 16) | (game->ceiling_color.g << 8) | game->ceiling_color.b;
+
+    y = 0;
+    while (y < drawStart)
     {
         // Ensure y is within the window bounds
         if (y >= 0 && y < WIN_HEIGHT)
         {
             // Calculate the memory address for the pixel
             char *pixel = game->img.addr + (y * game->img.line_length + x * (game->img.bits_per_pixel / 8));
-            *(unsigned int*)pixel = color;
+            *(unsigned int*)pixel = ceiling_color;
+        }
+        y++;
+    }
+}
+
+void	render_floor(t_game *game, int x, int drawEnd)
+{
+    int y;
+    unsigned int floor_color = (game->floor_color.r << 16) | (game->floor_color.g << 8) | game->floor_color.b;
+
+    y = drawEnd + 1;
+    while (y < WIN_HEIGHT)
+    {
+        // Ensure y is within the window bounds
+        if (y >= 0 && y < WIN_HEIGHT)
+        {
+            // Calculate the memory address for the pixel
+            char *pixel = game->img.addr + (y * game->img.line_length + x * (game->img.bits_per_pixel / 8));
+            *(unsigned int*)pixel = floor_color;
         }
         y++;
     }
@@ -119,17 +153,17 @@ void	render_frame(t_game *game)
         if(drawStart < 0) drawStart = 0;
         int drawEnd = lineHeight / 2 + WIN_HEIGHT / 2;
         if(drawEnd >= WIN_HEIGHT) drawEnd = WIN_HEIGHT - 1;
-        
+        render_ceiling(game, x, drawStart); 
         // Choose wall color
         int color;
         if (side == 1)
-            color = 0xFF0000; // Red for NS walls
+            color = 0xFFB6C1; // Red for NS walls
         else
-            color = 0x00FF00; // Green for EW walls
+            color = 0xADD8E6; // Green for EW walls
         
         // Draw the vertical line
         draw_vertical_line(game, x, drawStart, drawEnd, color);
-        
+        render_floor(game, x, drawEnd);
         x++;
     }
     

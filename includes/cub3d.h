@@ -6,7 +6,7 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 13:23:00 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/24 00:41:31 by krim          ########   odam.nl         */
+/*   Updated: 2024/12/24 01:56:07 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ typedef struct s_texture {
     int bpp;       // Bits per pixel
     int line_length;  // Line length
     int endian;    // Endianess
+    int tex_x;     // Texture X coordinate
 }               t_texture;
 
 // Struct for storing color information
