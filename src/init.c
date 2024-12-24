@@ -6,7 +6,7 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 13:54:16 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/24 00:41:26 by krim          ########   odam.nl         */
+/*   Updated: 2024/12/24 22:56:09 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,15 @@ void    init_player(t_player *player) {
     player->dirY = 0;
     player->planeX = 0;
     player->planeY = 0.66;
+}
+
+void init_keys(t_movement *keys) {
+    keys->move_forward = 0;
+    keys->move_backward = 0;
+    keys->move_left = 0;
+    keys->move_right = 0;
+    keys->rotate_left = 0;
+    keys->rotate_right = 0;
 }
 
 void init_textures(t_game *game)
@@ -71,6 +80,7 @@ void init_game(t_game *game) {
     init_player(&game->player);
     init_textures(game);
     init_image(game);
+    init_keys(&game->keys);
     init_map(game);
 }
 

@@ -2,8 +2,8 @@ NO ./utils/textures/wall_1.xpm
 SO ./utils/textures/wall_2.xpm
 WE ./utils/textures/wall_3.xpm
 EA ./utils/textures/wall_4.xpm
-F 220,100,0
-C 225,30,0
+F 0,0,0
+C 105,105,105
 
 1111111
 1000001

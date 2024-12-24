@@ -6,23 +6,57 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 14:21:32 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/24 02:03:14 by krim          ########   odam.nl         */
+/*   Updated: 2024/12/24 22:58:49 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-void	draw_vertical_line(t_game *game, int x, int start, int end, int color)
+void	draw_textured_line(t_game *game, int x, int start, int end, t_texture *texture, double step, double texPos, int texX, int side)
 {
     int	y;
 
     y = start;
     while (y < end)
     {
-        // Calculate the memory address for the pixel
-        char *pixel = game->img.addr + (y * game->img.line_length + x * (game->img.bits_per_pixel / 8));
-        *(unsigned int*)pixel = color;
+        // Ensure y is within the window bounds
+        if (y >= 0 && y < WIN_HEIGHT)
+        {
+            // Calculate the texture y-coordinate
+            int texY = (int)texPos & (texture->height - 1);
+            texPos += step;
+            
+            // Get the color from the texture
+            char *texture_pixel = texture->addr + (texY * texture->line_length + texX * (texture->bpp / 8));
+            unsigned int color = *(unsigned int*)texture_pixel;
+
+            // Apply simple shading for NS walls 
+            if (side == 1)
+                color = (color >> 1) & 8355711; // Darken the color
+
+            // Calculate the memory address for the pixel on the screen
+            char *pixel = game->img.addr + (y * game->img.line_length + x * (game->img.bits_per_pixel / 8));
+            *(unsigned int*)pixel = color;
+        }
         y++;
+    }
+}
+
+t_texture	*select_texture(t_game *game, int side, double rayDirX, double rayDirY)
+{
+    if (side == 0) // EW walls
+    {
+        if (rayDirX > 0)
+            return &game->textures[3]; // East
+        else
+            return &game->textures[2]; // West
+    }
+    else // NS walls
+    {
+        if (rayDirY > 0)
+            return &game->textures[1]; // South
+        else
+            return &game->textures[0]; // North
     }
 }
 
@@ -62,6 +96,13 @@ void	render_floor(t_game *game, int x, int drawEnd)
         }
         y++;
     }
+}
+
+void	init_ray(t_game *game, int x, double *cameraX, double *rayDirX, double *rayDirY)
+{
+    *cameraX = 2.0 * x / (double)WIN_WIDTH - 1.0;
+    *rayDirX = game->player.dirX + game->player.planeX * (*cameraX);
+    *rayDirY = game->player.dirY + game->player.planeY * (*cameraX);
 }
 
 void	render_frame(t_game *game)
@@ -154,16 +195,34 @@ void	render_frame(t_game *game)
         int drawEnd = lineHeight / 2 + WIN_HEIGHT / 2;
         if(drawEnd >= WIN_HEIGHT) drawEnd = WIN_HEIGHT - 1;
         render_ceiling(game, x, drawStart); 
-        // Choose wall color
-        int color;
-        if (side == 1)
-            color = 0xFFB6C1; // Red for NS walls
+        t_texture *current_texture = select_texture(game, side, rayDirX, rayDirY);
+        double wallX; // Where exactly the wall was hit
+        if (side == 0)
+            wallX = game->player.posY + perpWallDist * rayDirY;
         else
-            color = 0xADD8E6; // Green for EW walls
+            wallX = game->player.posX + perpWallDist * rayDirX;
+        wallX -= floor(wallX);
         
-        // Draw the vertical line
-        draw_vertical_line(game, x, drawStart, drawEnd, color);
+        // Calculate the x coordinate on the texture
+        int texX = (int)(wallX * (double)current_texture->width);
+        if(side == 0 && rayDirX > 0)
+            texX = current_texture->width - texX - 1;
+        if(side == 1 && rayDirY < 0)
+            texX = current_texture->width - texX - 1;
+        // Ensure texX is within texture bounds
+        if (texX < 0)
+            texX = 0;
+        if (texX >= current_texture->width)
+            texX = current_texture->width - 1;
+        
+        // Calculate step and initial texture position for y
+        double step = 1.0 * current_texture->height / lineHeight;
+        double texPos = (drawStart - WIN_HEIGHT / 2 + lineHeight / 2) * step;
+        
+        // Draw the textured vertical line
+        draw_textured_line(game, x, drawStart, drawEnd, current_texture, step, texPos, texX, side);
         render_floor(game, x, drawEnd);
+        // debug_info(game, x, cameraX, rayDirX, rayDirY, mapX, mapY, perpWallDist, drawStart, drawEnd, side);
         x++;
     }
     

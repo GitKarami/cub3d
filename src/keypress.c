@@ -6,88 +6,113 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 14:20:49 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/22 15:16:17 by kchahmi       ########   odam.nl         */
+/*   Updated: 2024/12/24 22:53:38 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "cub3d.h"
+#include "../includes/cub3d.h"
 
-int	handle_keypress(int key, t_game *game)
+void	handle_movement(t_game *game, double moveSpeed, double rotSpeed)
 {
-    double	newPosX;
-    double	newPosY;
     double	oldDirX;
     double	oldPlaneX;
 
-    if (key == KEY_ESC)
-        cleanup_game(game);
     // Move Forward
-    if (key == KEY_W)
+    if (game->keys.move_forward)
     {
-        newPosX = game->player.posX + game->player.dirX * MOVE_SPEED;
-        newPosY = game->player.posY + game->player.dirY * MOVE_SPEED;
-        if (game->map.grid[(int)newPosY][(int)(game->player.posX)] != WALL)
-            game->player.posY = newPosY;
-        if (game->map.grid[(int)(game->player.posY)][(int)newPosX] != WALL)
-            game->player.posX = newPosX;
+        if (game->map.grid[(int)(game->player.posY)][(int)(game->player.posX + game->player.dirX * moveSpeed)] != WALL)
+            game->player.posX += game->player.dirX * moveSpeed;
+        if (game->map.grid[(int)(game->player.posY + game->player.dirY * moveSpeed)][(int)(game->player.posX)] != WALL)
+            game->player.posY += game->player.dirY * moveSpeed;
     }
     // Move Backward
-    if (key == KEY_S)
+    if (game->keys.move_backward)
     {
-        newPosX = game->player.posX - game->player.dirX * MOVE_SPEED;
-        newPosY = game->player.posY - game->player.dirY * MOVE_SPEED;
-        if (game->map.grid[(int)newPosY][(int)(game->player.posX)] != WALL)
-            game->player.posY = newPosY;
-        if (game->map.grid[(int)(game->player.posY)][(int)newPosX] != WALL)
-            game->player.posX = newPosX;
+        if (game->map.grid[(int)(game->player.posY)][(int)(game->player.posX - game->player.dirX * moveSpeed)] != WALL)
+            game->player.posX -= game->player.dirX * moveSpeed;
+        if (game->map.grid[(int)(game->player.posY - game->player.dirY * moveSpeed)][(int)(game->player.posX)] != WALL)
+            game->player.posY -= game->player.dirY * moveSpeed;
     }
     // Strafe Left
-    if (key == KEY_A)
+    if (game->keys.move_left)
     {
-        newPosX = game->player.posX - game->player.planeX * MOVE_SPEED;
-        newPosY = game->player.posY - game->player.planeY * MOVE_SPEED;
-        if (game->map.grid[(int)newPosY][(int)(game->player.posX)] != WALL)
-            game->player.posY = newPosY;
-        if (game->map.grid[(int)(game->player.posY)][(int)newPosX] != WALL)
-            game->player.posX = newPosX;
+        if (game->map.grid[(int)(game->player.posY)][(int)(game->player.posX - game->player.planeX * moveSpeed)] != WALL)
+            game->player.posX -= game->player.planeX * moveSpeed;
+        if (game->map.grid[(int)(game->player.posY - game->player.planeY * moveSpeed)][(int)(game->player.posX)] != WALL)
+            game->player.posY -= game->player.planeY * moveSpeed;
     }
     // Strafe Right
-    if (key == KEY_D)
+    if (game->keys.move_right)
     {
-        newPosX = game->player.posX + game->player.planeX * MOVE_SPEED;
-        newPosY = game->player.posY + game->player.planeY * MOVE_SPEED;
-        if (game->map.grid[(int)newPosY][(int)(game->player.posX)] != WALL)
-            game->player.posY = newPosY;
-        if (game->map.grid[(int)(game->player.posY)][(int)newPosX] != WALL)
-            game->player.posX = newPosX;
+        if (game->map.grid[(int)(game->player.posY)][(int)(game->player.posX + game->player.planeX * moveSpeed)] != WALL)
+            game->player.posX += game->player.planeX * moveSpeed;
+        if (game->map.grid[(int)(game->player.posY + game->player.planeY * moveSpeed)][(int)(game->player.posX)] != WALL)
+            game->player.posY += game->player.planeY * moveSpeed;
     }
     // Rotate Left
-    if (key == KEY_LEFT)
+    if (game->keys.rotate_right)
     {
         oldDirX = game->player.dirX;
-        game->player.dirX = game->player.dirX * cos(ROT_SPEED) - game->player.dirY * sin(ROT_SPEED);
-        game->player.dirY = oldDirX * sin(ROT_SPEED) + game->player.dirY * cos(ROT_SPEED);
+        game->player.dirX = game->player.dirX * cos(rotSpeed) - game->player.dirY * sin(rotSpeed);
+        game->player.dirY = oldDirX * sin(rotSpeed) + game->player.dirY * cos(rotSpeed);
         oldPlaneX = game->player.planeX;
-        game->player.planeX = game->player.planeX * cos(ROT_SPEED) - game->player.planeY * sin(ROT_SPEED);
-        game->player.planeY = oldPlaneX * sin(ROT_SPEED) + game->player.planeY * cos(ROT_SPEED);
+        game->player.planeX = game->player.planeX * cos(rotSpeed) - game->player.planeY * sin(rotSpeed);
+        game->player.planeY = oldPlaneX * sin(rotSpeed) + game->player.planeY * cos(rotSpeed);
     }
     // Rotate Right
-    if (key == KEY_RIGHT)
+    if (game->keys.rotate_left)
     {
         oldDirX = game->player.dirX;
-        game->player.dirX = game->player.dirX * cos(-ROT_SPEED) - game->player.dirY * sin(-ROT_SPEED);
-        game->player.dirY = oldDirX * sin(-ROT_SPEED) + game->player.dirY * cos(-ROT_SPEED);
+        game->player.dirX = game->player.dirX * cos(-rotSpeed) - game->player.dirY * sin(-rotSpeed);
+        game->player.dirY = oldDirX * sin(-rotSpeed) + game->player.dirY * cos(-rotSpeed);
         oldPlaneX = game->player.planeX;
-        game->player.planeX = game->player.planeX * cos(-ROT_SPEED) - game->player.planeY * sin(-ROT_SPEED);
-        game->player.planeY = oldPlaneX * sin(-ROT_SPEED) + game->player.planeY * cos(-ROT_SPEED);
+        game->player.planeX = game->player.planeX * cos(-rotSpeed) - game->player.planeY * sin(-rotSpeed);
+        game->player.planeY = oldPlaneX * sin(-rotSpeed) + game->player.planeY * cos(-rotSpeed);
     }
-    render_frame(game);
+}
+
+int	toggle_keypress(int key, t_game *game)
+{
+    if (key == KEY_ESC)
+        cleanup_game(game);
+    if (key == KEY_W)
+        game->keys.move_forward = 1;
+    if (key == KEY_S)
+        game->keys.move_backward = 1;
+    if (key == KEY_A)
+        game->keys.move_left = 1;
+    if (key == KEY_D)
+        game->keys.move_right = 1;
+    if (key == KEY_LEFT)
+        game->keys.rotate_left = 1;
+    if (key == KEY_RIGHT)
+        game->keys.rotate_right = 1;
+    return (0);
+}
+
+// Handle key release events by resetting the corresponding key state
+int	toggle_keyrelease(int key, t_game *game)
+{
+    if (key == KEY_W)
+        game->keys.move_forward = 0;
+    if (key == KEY_S)
+        game->keys.move_backward = 0;
+    if (key == KEY_A)
+        game->keys.move_left = 0;
+    if (key == KEY_D)
+        game->keys.move_right = 0;
+    if (key == KEY_LEFT)
+        game->keys.rotate_left = 0;
+    if (key == KEY_RIGHT)
+        game->keys.rotate_right = 0;
     return (0);
 }
 
 void	setup_hooks(t_game *game)
 {
-    mlx_hook(game->window, 2, 1L << 0, handle_keypress, game);
+    mlx_hook(game->window, 2, 1L << 0, toggle_keypress, game);
+    mlx_hook(game->window, 3, 1L << 1, toggle_keyrelease, game);
     mlx_hook(game->window, 17, 0, cleanup_game, game);
+    mlx_loop_hook(game->mlx, game_loop, game); 
 }
 

@@ -6,7 +6,7 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 13:23:00 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/24 01:56:07 by krim          ########   odam.nl         */
+/*   Updated: 2024/12/24 22:52:56 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@
 #define WIN_HEIGHT 600 // Height of the game window
 
 // Define movement speed
-#define MOVE_SPEED 0.05 // Player movement speed
-#define ROT_SPEED 0.03 // Player rotation speed
+#define MOVE_SPEED 0.008 // Player movement speed
+#define ROT_SPEED 0.006 // Player rotation speed
 
 // Define maximum map size
 #define MAX_MAP_WIDTH 100
@@ -73,6 +73,14 @@ typedef struct s_player {
     double planeY; // Camera plane Y
 }               t_player;
 
+typedef struct s_movement {
+    int move_forward;
+    int move_backward;
+    int move_left;
+    int move_right;
+    int rotate_left;
+    int rotate_right;
+}               t_movement;
 // Struct for storing texture information
 typedef struct s_texture {
     char *path;    // Path to the texture file
@@ -119,6 +127,7 @@ typedef struct s_game {
     t_color ceiling_color;   // Ceiling color
     t_map map;               // Game map
     t_image img;             // Image buffer for rendering
+    t_movement keys;         // Movement keys
     // Add more game-related variables here
 }               t_game;
 
@@ -133,7 +142,7 @@ void    render_frame(t_game *game);
 void    draw_vertical_line(t_game *game, int x, int start, int end, int color);
 
 // Input handling functions
-int     handle_keypress(int key, t_game *game);
+void	handle_movement(t_game *game, double moveSpeed, double rotSpeed);
 int     handle_keyrelease(int key, t_game *game);
 void	setup_hooks(t_game *game);
 
@@ -156,6 +165,7 @@ int     parse_colors(t_game *game, char **split);
 // Utility functions
 void    error_exit(const char *message);
 int    cleanup_game(t_game *game);
+void    debug_info(t_game *game, int x, double cameraX, double rayDirX, double rayDirY, int mapX, int mapY, double perpWallDist, int drawStart, int drawEnd, int side);
 
 #endif // CUB3D_H
 

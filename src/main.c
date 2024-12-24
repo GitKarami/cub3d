@@ -6,12 +6,27 @@
 /*   By: kchahmi <kchahmi@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/12/22 13:50:08 by kchahmi       #+#    #+#                 */
-/*   Updated: 2024/12/24 00:45:38 by krim          ########   odam.nl         */
+/*   Updated: 2024/12/24 22:50:25 by krim          ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 #include <string.h>
+
+void debug_info(t_game *game, int x, double cameraX, double rayDirX, double rayDirY, int mapX, int mapY, double perpWallDist, int drawStart, int drawEnd, int side)
+{
+    printf("=== Debug Info ===\n");
+    printf("Player Position: (x: %.2f, y: %.2f)\n", game->player.posX, game->player.posY);
+    printf("Ray Position: x = %d\n", x);
+    printf("Camera X: %.2f\n", cameraX);
+    printf("Ray Direction: (x: %.2f, y: %.2f)\n", rayDirX, rayDirY);
+    printf("Map Position: (x: %d, y: %d)\n", mapX, mapY);
+    printf("Perpendicular Wall Distance: %.2f\n", perpWallDist);
+    printf("Draw Start: %d\n", drawStart);
+    printf("Draw End: %d\n", drawEnd);
+    printf("Wall Side: %s\n", side == 0 ? "EW" : "NS");
+    printf("==================\n");
+}
 
 void print_game_struct(const t_game *game)
 {
@@ -87,11 +102,9 @@ int ft_strends_with(const char *str, const char *suffix)
 
 int	game_loop(t_game *game)
 {
-    init_mlx_image(game);
+    handle_movement(game, MOVE_SPEED, ROT_SPEED); ;
 	render_frame(game);
-    print_game_struct(game);
-	setup_hooks(game);
-	mlx_loop(game->mlx);
+    // print_game_struct(game);
 	return (0);
 }
 int main(int argc, char **argv)
@@ -105,9 +118,10 @@ int main(int argc, char **argv)
     if (!ft_strends_with(argv[1], MAP_EXT)) {
         error_exit("Map file must have a .cub extension");
     }
-
     initialize_game(&game, argv[1]);
-    game_loop(&game);
+    init_mlx_image(&game);
+    setup_hooks(&game);
+    mlx_loop(game.mlx);
     // cleanup_game(&game);
     return 0;
 }
